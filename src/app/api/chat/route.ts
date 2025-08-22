@@ -9,6 +9,8 @@ function formatMessages(messages: Message[]): string {
 
 export async function POST(req: Request) {
   try {
+    console.log('API Key present:', !!process.env.GOOGLE_GENAI_API_KEY);
+    
     const { messages } = (await req.json()) as { messages: Message[] };
 
     const lastMessage = messages[messages.length - 1];
@@ -19,19 +21,24 @@ export async function POST(req: Request) {
 
     const systemPrompt = `You are a helpful AI assistant named Lexdoo. Your goal is to provide accurate and helpful responses. When relevant, incorporate links, citations, and lists into your responses to enhance their quality and usefulness. Always format your responses using markdown.`;
     
-    // For this implementation, we will only use the last user message for simplicity.
-    // A more advanced version could use `formatMessages(messages)` to include history.
     const fullPrompt = `${systemPrompt}\n\nuser: ${lastMessage.content}`;
 
-    const { stream } = ai.generateStream({
+    const { stream } = await ai.generateStream({
       prompt: fullPrompt,
     });
 
     const customStream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
-        for await (const chunk of stream) {
-          controller.enqueue(encoder.encode(chunk.text));
+        try {
+          for await (const chunk of stream) {
+            if (chunk.text) {
+              controller.enqueue(encoder.encode(chunk.text));
+            }
+          }
+        } catch (streamError) {
+          console.error('Stream error:', streamError);
+          controller.enqueue(encoder.encode('Error generating response'));
         }
         controller.close();
       },
@@ -44,6 +51,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('[CHAT_API_ERROR]', error);
-    return new Response('An error occurred while processing the chat request.', { status: 500 });
+    return new Response(`Error: ${error.message}`, { status: 500 });
   }
 }
