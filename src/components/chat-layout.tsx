@@ -34,7 +34,7 @@ export function ChatLayout() {
                 <Bot />
               </AvatarFallback>
             </Avatar>
-            <h1 className="font-semibold text-lg">GeminiChat</h1>
+            <h1 className="font-semibold text-lg">GeminiChats</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>

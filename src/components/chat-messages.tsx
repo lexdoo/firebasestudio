@@ -27,7 +27,7 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
       {messages.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
           <Bot className="w-16 h-16 text-primary" />
-          <h2 className="text-2xl font-semibold mt-4">Welcome to GeminiChat</h2>
+          <h2 className="text-2xl font-semibold mt-4">Welcome to GeminiChats</h2>
           <p className="text-muted-foreground mt-2">Start a conversation by typing a message below.</p>
         </div>
       ) : (
